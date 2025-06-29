@@ -10,13 +10,16 @@ import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 
+import entities.Enemy;
 import entities.Entity;
 import entities.Player;
 import grafics.SpriteSheet;
+import grafics.UI;
 import world.World;
 
 public class Game extends Canvas implements Runnable, KeyListener {
@@ -25,26 +28,36 @@ public class Game extends Canvas implements Runnable, KeyListener {
 	public static JFrame frame;
 	private Thread thread;
 	private boolean isRunning = true;
-	private final int WIDTH = 320; 
-	private final int HEIGHT = 240;
+	public static final int WIDTH = 288; 
+	public static final int HEIGHT = 208;
 	private int SCALE = 3;
 	public static Player player;
-	public World world;
+	public static World world;
 	
 	private BufferedImage image;
 	
 	public static List<Entity> entities;
+	public static List<Enemy> enemies;
+	public static List<Entity> items;
 	public static SpriteSheet spriteSheet;
 	
+	public static Random rand;
+	
+	public UI ui;
+	
 	public Game () {
+		rand = new Random();
 		addKeyListener(this);
 		
 		this.setPreferredSize(new Dimension(WIDTH*SCALE, HEIGHT*SCALE));
 		initFrame();
 		
 		image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
+		ui = new UI();
 	
 		entities = new ArrayList<>();
+		enemies = new ArrayList<>();
+		items = new ArrayList<>();
 		spriteSheet = new SpriteSheet("/recursos.png");	
 		player = new Player(0, 0, 16, 16, spriteSheet.getSprite(32, 0, 16, 16));
 		world = new World("/mapa1.png");
@@ -113,6 +126,8 @@ public class Game extends Canvas implements Runnable, KeyListener {
 		g = bs.getDrawGraphics();
 		g.drawImage(image, 0, 0, WIDTH*SCALE, HEIGHT*SCALE, null);
 		
+		ui.render(g);
+		
 		bs.show();
 		
 	}
@@ -132,6 +147,7 @@ public class Game extends Canvas implements Runnable, KeyListener {
 		int frames = 0;
 		double timer = System.currentTimeMillis();
 		long now;
+		requestFocus();
 		
 		while(isRunning) {
 			now = System.nanoTime();
