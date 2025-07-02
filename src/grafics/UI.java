@@ -17,7 +17,7 @@ public class UI {
 		g.setColor(Color.black);
 		g.setFont(new Font("Arial", Font.BOLD, 16));
 		g.drawString((int)Game.player.life+"/"+(int)Game.player.maxLife, 12, 14);
-		g.drawString("AMMO: " + Player.ammo, 12, 60);
+		g.drawString("AMMO: " + Game.player.ammo, 12, 60);
 	}
 	
 }

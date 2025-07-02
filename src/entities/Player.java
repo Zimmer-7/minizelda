@@ -22,6 +22,8 @@ public class Player extends Entity {
 	
 	public int dirY = -1;
 	public int dirX = 1;
+	public int mx;
+	public int my;
 	
 	private int frames = 0;
 	private int damageFrames = 0;
@@ -31,8 +33,11 @@ public class Player extends Entity {
 	
 	private boolean moved = false;
 	public boolean damaged = false;
+	private boolean withGun = false;
+	public boolean shooting = false;
+	public boolean mouseShooting = false;
 	
-	public static int ammo = 0;
+	public int ammo = 0;
 	
 	private BufferedImage[] playerRightDown;
 	private BufferedImage[] playerLeftDown;
@@ -126,13 +131,45 @@ public class Player extends Entity {
 			}
 		}
 		
+		if(shooting) {
+			shooting = false;
+			if(withGun && ammo > 0) {
+				ammo--;
+				int px = 0;
+				if(dirX > 0) {
+					px = 11;
+				}
+				Bullet bullet = new Bullet((double)this.getX()+px, (double)this.getY()+8, 3, 3, null, dirX, 0);
+				Game.bullets.add(bullet);
+			}
+		}
+		
+		if(mouseShooting) {
+			mouseShooting = false;
+			if(withGun && ammo > 0) {
+				ammo--;
+				int px = 0;
+				if(dirX > 0) {
+					px = 11;
+				}
+				double angle = Math.atan2(my - ((double)this.getY()+8 - Camera.y), mx - ((double)this.getX()+px - Camera.x));
+				double dx = Math.cos(angle);
+				double dy = Math.sin(angle);
+				
+				Bullet bullet = new Bullet((double)this.getX()+px, (double)this.getY()+8, 3, 3, null, dx, dy);
+				Game.bullets.add(bullet);
+			}
+		}
+		
 		if(life <= 0) {
 			Game.entities.clear();
 			Game.enemies.clear();
 			Game.items.clear();
+			Game.bullets.clear();
 			Game.entities = new ArrayList<>();
 			Game.enemies = new ArrayList<>();
 			Game.items = new ArrayList<>();
+			Game.bullets = new ArrayList<>();
 			Game.spriteSheet = new SpriteSheet("/recursos.png");	
 			Game.player = new Player(0, 0, 16, 16, Game.spriteSheet.getSprite(32, 0, 16, 16));
 			Game.world = new World("/mapa1.png");
@@ -166,35 +203,45 @@ public class Player extends Entity {
 					Game.items.remove(atual);
 					Game.entities.remove(atual);
 				}
+				if(atual instanceof Gun) {
+					withGun = true;
+						
+					Game.items.remove(atual);
+					Game.entities.remove(atual);
+				}
 			}
 		}
 	}
 	
 	@Override
 	public void render(Graphics g){
-		if(dirX == 1 && dirY == -1 && moved) 
-			g.drawImage(playerRightDown[index], this.getX() - Camera.x, this.getY() - Camera.y, null);
+		if(dirX == 1) {
+			if(dirY == -1 && moved) 
+				g.drawImage(playerRightDown[index], this.getX() - Camera.x, this.getY() - Camera.y, null);
+			if(dirY == 1 && moved) 
+				g.drawImage(playerRightUp[index], this.getX() - Camera.x, this.getY() - Camera.y, null);
+			if(dirY == -1 && !moved) 
+				g.drawImage(playerStopRightDown, this.getX() - Camera.x, this.getY() - Camera.y, null);
+			if(dirY == 1 && !moved) 
+				g.drawImage(playerStopRightUp, this.getX() - Camera.x, this.getY() - Camera.y, null);
+			if(withGun) {
+				g.drawImage(Entity.GUN_RIGHT_EN, this.getX() - Camera.x + 5, this.getY() - Camera.y + 2, null);
+			}
+		}
 		
-		if(dirX == -1 && dirY == -1 && moved) 
-			g.drawImage(playerLeftDown[index], this.getX() - Camera.x, this.getY() - Camera.y, null);
-		
-		if(dirX == 1 && dirY == 1 && moved) 
-			g.drawImage(playerRightUp[index], this.getX() - Camera.x, this.getY() - Camera.y, null);
-		 
-		if(dirX == -1 && dirY == 1 && moved) 
-			g.drawImage(playerLeftUp[index], this.getX() - Camera.x, this.getY() - Camera.y, null);
-		
-		if(dirX == 1 && dirY == -1 && !moved) 
-			g.drawImage(playerStopRightDown, this.getX() - Camera.x, this.getY() - Camera.y, null);
-		
-		if(dirX == -1 && dirY == -1 && !moved) 
-			g.drawImage(playerStopLeftDown, this.getX() - Camera.x, this.getY() - Camera.y, null);
-		
-		if(dirX == 1 && dirY == 1 && !moved) 
-			g.drawImage(playerStopRightUp, this.getX() - Camera.x, this.getY() - Camera.y, null);
-		
-		if(dirX == -1 && dirY == 1 && !moved) 
-			g.drawImage(playerStopLeftUp, this.getX() - Camera.x, this.getY() - Camera.y, null);
+		if(dirX == -1) {
+			if(dirY == -1 && moved) 
+				g.drawImage(playerLeftDown[index], this.getX() - Camera.x, this.getY() - Camera.y, null);
+			if(dirY == 1 && moved) 
+				g.drawImage(playerLeftUp[index], this.getX() - Camera.x, this.getY() - Camera.y, null);
+			if(dirY == -1 && !moved) 
+				g.drawImage(playerStopLeftDown, this.getX() - Camera.x, this.getY() - Camera.y, null);
+			if(dirY == 1 && !moved) 
+				g.drawImage(playerStopLeftUp, this.getX() - Camera.x, this.getY() - Camera.y, null);
+			if(withGun) {
+				g.drawImage(Entity.GUN_LEFT_EN, this.getX() - Camera.x - 5, this.getY() - Camera.y + 2, null);
+			}
+		}
 		
 		if(damaged) {
 			g.drawImage(playerDamage, this.getX() - Camera.x, this.getY() - Camera.y, null);

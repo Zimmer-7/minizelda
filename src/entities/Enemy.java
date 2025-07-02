@@ -14,14 +14,10 @@ public class Enemy extends Entity {
 	private double speed = 1;
 	private boolean right = false;
 	private boolean left = false;
-	
-	//int maskx = 3;
-	//int masky = 5;
-	//int maskw = 8;
-	//int maskh = 6;
+	private int life = 5;
 	
 	private int frames = 0;
-	private int maxFrames = 8;
+	private int maxFrames = 6;
 	private int index = 0;
 	private int maxIndex = 1;
 	
@@ -57,7 +53,7 @@ public class Enemy extends Entity {
 			if(Game.rand.nextInt(100) < 70) {
 				if(x < Game.player.getX() && 
 					World.isFree((int)(x+speed), (int)y) &&
-					!isColliding((int)(x+speed), (int)y)) {
+					!isCollidingEn((int)(x+speed), (int)y)) {
 					
 					x+=speed;
 					right = true;
@@ -66,7 +62,7 @@ public class Enemy extends Entity {
 				}
 				if(x > Game.player.getX() && 
 					World.isFree((int)(x-speed), (int)y) &&
-					!isColliding((int)(x-speed), (int)y)) {
+					!isCollidingEn((int)(x-speed), (int)y)) {
 					
 					x-=speed;
 					right = false;
@@ -75,14 +71,14 @@ public class Enemy extends Entity {
 				}
 				if(y < Game.player.getY() &&
 					World.isFree((int)x, (int)(y+speed)) &&
-					!isColliding((int)x, (int)(y+speed))) {
+					!isCollidingEn((int)x, (int)(y+speed))) {
 			
 					y+=speed;
 					
 				}
 				if(y > Game.player.getY() && 
 					World.isFree((int)x, (int)(y-speed)) &&
-					!isColliding((int)x, (int)(y-speed))) {
+					!isCollidingEn((int)x, (int)(y-speed))) {
 					
 					y-=speed;
 					
@@ -105,8 +101,17 @@ public class Enemy extends Entity {
 				index = 0;
 				
 		}
+		
+		checkDamage();
+		
+		if(life <= 0) {
+			Game.entities.remove(this);
+			Game.enemies.remove(this);
+			return;
+		}
 			
 		speed = auxSpeed;
+		
 	}
 	
 	public boolean touching() {
@@ -116,7 +121,7 @@ public class Enemy extends Entity {
 		return current.intersects(player);
 	}
 	
-	public boolean isColliding(int xnext, int ynext) {
+	public boolean isCollidingEn(int xnext, int ynext) {
 		Rectangle current = new Rectangle(xnext + maskx, ynext + masky, maskw, maskh);
 		
 		for(int i = 0; i < Game.enemies.size(); i++) {
@@ -128,6 +133,20 @@ public class Enemy extends Entity {
 			
 			if(current.intersects(target))
 				return true;
+		}
+		
+		return false;
+	}
+	
+	public boolean checkDamage() {
+		for(int i = 0; i < Game.bullets.size(); i++) {
+			Bullet bullet = Game.bullets.get(i);
+			
+			if(Entity.isColliding(this, bullet)) {
+				life--;
+				Game.bullets.remove(i);
+				return true;
+			}
 		}
 		
 		return false;
