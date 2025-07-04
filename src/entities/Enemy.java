@@ -11,18 +11,22 @@ import world.World;
 
 public class Enemy extends Entity {
 	
-	private double speed = 1;
+	private double speed = 1.2;
 	private boolean right = false;
 	private boolean left = false;
-	private int life = 5;
+	private int life = 6;
+	private boolean damaged = false;
 	
 	private int frames = 0;
+	private int damageFrames = 0;
 	private int maxFrames = 6;
 	private int index = 0;
 	private int maxIndex = 1;
 	
 	private BufferedImage[] enemyRight;
 	private BufferedImage[] enemyLeft;
+	private BufferedImage enemyDamageLeft;
+	private BufferedImage enemyDamageRight;
 
 	public Enemy(double x, double y, int width, int height, BufferedImage sprite) {
 		super(x, y, width, height, null);
@@ -34,6 +38,8 @@ public class Enemy extends Entity {
 		enemyLeft[1] = Game.spriteSheet.getSprite(32, 64, 16, 16);
 		enemyRight[0] = Game.spriteSheet.getSprite(48, 48, 16, 16);
 		enemyRight[1] = Game.spriteSheet.getSprite(48, 64, 16, 16);
+		enemyDamageLeft = Game.spriteSheet.getSprite(32, 80, 16, 16);
+		enemyDamageRight = Game.spriteSheet.getSprite(48, 80, 16, 16);
 		
 		this.setMask(3, 5, 8, 6);
 	}
@@ -88,6 +94,8 @@ public class Enemy extends Entity {
 		} else {
 			if(frames == 0) {
 				Game.player.life --;
+				if(Game.rand.nextInt(100) < 25)
+					Game.player.life --;
 				Game.player.damaged = true;
 			}
 		}
@@ -103,6 +111,14 @@ public class Enemy extends Entity {
 		}
 		
 		checkDamage();
+		
+		if(damaged) {
+			damageFrames ++;
+			if(damageFrames == maxFrames) {
+				damageFrames = 0;
+				damaged = false;
+			}
+		}
 		
 		if(life <= 0) {
 			Game.entities.remove(this);
@@ -143,6 +159,7 @@ public class Enemy extends Entity {
 			Bullet bullet = Game.bullets.get(i);
 			
 			if(Entity.isColliding(this, bullet)) {
+				damaged = true;
 				life--;
 				Game.bullets.remove(i);
 				return true;
@@ -156,9 +173,15 @@ public class Enemy extends Entity {
 	public void render(Graphics g) {
 		if(right) {
 			g.drawImage(enemyRight[index], this.getX() - Camera.x, this.getY() - Camera.y, null);
+			if(damaged) {
+				g.drawImage(enemyDamageRight, this.getX() - Camera.x, this.getY() - Camera.y, null);
+			}
 		}
 		if(left) {
 			g.drawImage(enemyLeft[index], this.getX() - Camera.x, this.getY() - Camera.y, null);
+			if(damaged) {
+				g.drawImage(enemyDamageLeft, this.getX() - Camera.x, this.getY() - Camera.y, null);
+			}
 		}
 		
 		//g.setColor(Color.blue);

@@ -3,11 +3,12 @@ package world;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
 import entities.*;
-
+import grafics.SpriteSheet;
 import main.Game;
 
 public class World {
@@ -41,7 +42,7 @@ public class World {
 					}
 					if(pixels[pos] == 0xFFFF0000) {
 						//inimigo
-						Enemy en = new Enemy(xx*16.0, yy*16.0, 16, 16, Entity.ENEMY_EN);
+						Enemy en = new Enemy(xx*16.0, yy*16.0, 16, 16, null);
 						Game.entities.add(en);
 						Game.enemies.add(en);
 					}
@@ -82,6 +83,22 @@ public class World {
 				tiles[x1 + (y2*WIDTH)] instanceof Wall ||
 				tiles[x2 + (y1*WIDTH)] instanceof Wall ||
 				tiles[x2 + (y2*WIDTH)] instanceof Wall);
+	}
+	
+	public static void startLevel(String level) {
+		Game.entities.clear();
+		Game.enemies.clear();
+		Game.items.clear();
+		Game.bullets.clear();
+		Game.entities = new ArrayList<>();
+		Game.enemies = new ArrayList<>();
+		Game.items = new ArrayList<>();
+		Game.bullets = new ArrayList<>();
+		Game.spriteSheet = new SpriteSheet("/recursos.png");	
+		Game.player = new Player(0, 0, 16, 16, Game.spriteSheet.getSprite(32, 0, 16, 16));
+		Game.world = new World("/"+level);
+		Game.entities.add(Game.player);
+		Game.gameState = "Normal";
 	}
 
 	public void render(Graphics g) {

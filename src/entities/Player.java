@@ -162,19 +162,7 @@ public class Player extends Entity {
 		}
 		
 		if(life <= 0) {
-			Game.entities.clear();
-			Game.enemies.clear();
-			Game.items.clear();
-			Game.bullets.clear();
-			Game.entities = new ArrayList<>();
-			Game.enemies = new ArrayList<>();
-			Game.items = new ArrayList<>();
-			Game.bullets = new ArrayList<>();
-			Game.spriteSheet = new SpriteSheet("/recursos.png");	
-			Game.player = new Player(0, 0, 16, 16, Game.spriteSheet.getSprite(32, 0, 16, 16));
-			Game.world = new World("/mapa1.png");
-			Game.entities.add(Game.player);
-			return;
+			Game.gameState = "Game Over";
 		}
 		
 		checkItems();

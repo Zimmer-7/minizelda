@@ -3,7 +3,9 @@ package main;
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -37,6 +39,8 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 	private int SCALE = 3;
 	public static Player player;
 	public static World world;
+	public static int curLevel = 1;
+	private int maxLevel = 2;
 	
 	private BufferedImage image;
 	
@@ -49,6 +53,12 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 	public static Random rand;
 	
 	public UI ui;
+	
+	public static String gameState = "Normal";
+	private boolean showGameOver = true;
+	private int framesGameOver = 0;
+	private boolean restartGame = false;
+	private boolean exit = false;
 	
 	public Game () {
 		rand = new Random();
@@ -102,14 +112,46 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 	}
 	
 	public void tick() {
-		for(int i = 0; i < entities.size(); i++) {
-			Entity e = entities.get(i);
-			e.tick();
+		if(gameState.equals("Normal")) {
+			restartGame = false;
+			exit = false;
+			for(int i = 0; i < entities.size(); i++) {
+				Entity e = entities.get(i);
+				e.tick();
+			}
+			
+			for(int i = 0; i < bullets.size(); i++) {
+				Entity e = bullets.get(i);
+				e.tick();
+			}
+			
+			if(enemies.isEmpty()) {
+				curLevel ++;
+				if(curLevel > maxLevel) {
+					gameState = "Victory";
+					return;
+				}
+				String newWorld = "mapa"+curLevel+".png";
+				World.startLevel(newWorld);
+			}
 		}
-		
-		for(int i = 0; i < bullets.size(); i++) {
-			Entity e = bullets.get(i);
-			e.tick();
+		if(gameState.equals("Game Over") || gameState.equals("Victory")) {
+			framesGameOver++;
+			if(framesGameOver == 50) {
+				framesGameOver = 0;
+				if(showGameOver) {
+					showGameOver = false;
+				} else {
+					showGameOver = true;
+				}
+			}
+			if(restartGame) {
+				curLevel = 1;
+				World.startLevel("Mapa1.png");
+				restartGame = false;
+			}
+			if(exit)
+				System.exit(1);
 		}
 	}
 	
@@ -143,6 +185,32 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 		g.drawImage(image, 0, 0, WIDTH*SCALE, HEIGHT*SCALE, null);
 		
 		ui.render(g);
+		if(gameState.equals("Game Over")) {
+			Graphics2D g2 = (Graphics2D) g;
+			g2.setColor(new Color(0,0,0,100));
+			g2.fillRect(0, 0, WIDTH*SCALE, HEIGHT*SCALE);
+			g.setFont(new Font("Arial", Font.BOLD, 48));
+			g.setColor(Color.red);
+			g.drawString("F", WIDTH*SCALE/2, HEIGHT*SCALE/2-15);
+			g.setFont(new Font("Arial", Font.BOLD, 28));
+			if(showGameOver) {
+				g.drawString("Pressione Enter para reiniciar", WIDTH*SCALE/2-182, HEIGHT*SCALE/2+35);
+				g.drawString("Pressione Esc para sair", WIDTH*SCALE/2-149, HEIGHT*SCALE/2+60);
+			}
+		}
+		if(gameState.equals("Victory")) {
+			Graphics2D g2 = (Graphics2D) g;
+			g2.setColor(new Color(0,0,0,100));
+			g2.fillRect(0, 0, WIDTH*SCALE, HEIGHT*SCALE);
+			g.setFont(new Font("Arial", Font.BOLD, 48));
+			g.setColor(Color.green);
+			g.drawString("Aí sim", WIDTH*SCALE/2, HEIGHT*SCALE/2-15);
+			g.setFont(new Font("Arial", Font.BOLD, 28));
+			if(showGameOver) {
+				g.drawString("Pressione Enter para reiniciar", WIDTH*SCALE/2-182, HEIGHT*SCALE/2+35);
+				g.drawString("Pressione Esc para sair", WIDTH*SCALE/2-149, HEIGHT*SCALE/2+60);
+			}
+		}
 		
 		bs.show();
 		
@@ -213,6 +281,12 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 		}
 		if(e.getKeyCode() == KeyEvent.VK_SPACE) {
 			player.shooting = true;
+		}
+		if(e.getKeyCode() == KeyEvent.VK_ENTER) {
+			restartGame = true;
+		}
+		if(e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+			exit = true;
 		}
 	}
 
