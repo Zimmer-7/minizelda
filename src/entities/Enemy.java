@@ -6,6 +6,7 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
 import main.Game;
+import main.Sound;
 import world.Camera;
 import world.World;
 
@@ -93,6 +94,7 @@ public class Enemy extends Entity {
 			
 		} else {
 			if(frames == 0) {
+				Sound.hurt.play();
 				Game.player.life --;
 				if(Game.rand.nextInt(100) < 25)
 					Game.player.life --;
