@@ -4,14 +4,18 @@ import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.FontFormatException;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -28,7 +32,7 @@ import grafics.UI;
 import world.Camera;
 import world.World;
 
-public class Game extends Canvas implements Runnable, KeyListener, MouseListener {
+public class Game extends Canvas implements Runnable, KeyListener, MouseListener, MouseMotionListener {
 
 	private static final long serialVersionUID = 1L;
 	public static JFrame frame;
@@ -41,6 +45,9 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 	public static World world;
 	public static int curLevel = 1;
 	private int maxLevel = 2;
+	
+	public int mx;
+	public int my;
 	
 	private BufferedImage image;
 	public Menu menu;
@@ -55,6 +62,10 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 	
 	public UI ui;
 	
+	public InputStream stream = ClassLoader.getSystemClassLoader().getResourceAsStream("campus.ttf");
+	public static Font newFontBig;
+	public static Font newFontSmall;
+	
 	public static String gameState = "Menu";
 	private boolean showGameOver = true;
 	private int framesGameOver = 0;
@@ -66,6 +77,7 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 		rand = new Random();
 		addKeyListener(this);
 		addMouseListener(this);
+		addMouseMotionListener(this);
 		
 		this.setPreferredSize(new Dimension(WIDTH*SCALE, HEIGHT*SCALE));
 		initFrame();
@@ -79,8 +91,17 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 		bullets = new ArrayList<>();
 		spriteSheet = new SpriteSheet("/recursos.png");	
 		player = new Player(0, 0, 16, 16, spriteSheet.getSprite(32, 0, 16, 16));
-		world = new World("/mapa1.png");
+		world = new World("/mapa1.png", 1);
 		entities.add(player);
+		
+		try {
+			newFontBig = Font.createFont(Font.TRUETYPE_FONT, stream).deriveFont(80f);
+			newFontSmall = newFontBig.deriveFont(35f);
+		} catch (FontFormatException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		
 		menu = new Menu();
 	}
@@ -135,7 +156,7 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 					return;
 				}
 				String newWorld = "mapa"+curLevel+".png";
-				World.startLevel(newWorld);
+				World.startLevel(curLevel);
 			}
 		}
 		if(gameState.equals("Game Over") || gameState.equals("Victory")) {
@@ -150,7 +171,7 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 			}
 			if(restartGame) {
 				curLevel = 1;
-				World.startLevel("Mapa1.png");
+				World.startLevel(1);
 				restartGame = false;
 			}
 			if(exit)
@@ -191,30 +212,29 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 		g.drawImage(image, 0, 0, WIDTH*SCALE, HEIGHT*SCALE, null);
 		
 		ui.render(g);
+		Graphics2D g2 = (Graphics2D) g;
 		if(gameState.equals("Game Over")) {
-			Graphics2D g2 = (Graphics2D) g;
 			g2.setColor(new Color(0,0,0,100));
 			g2.fillRect(0, 0, WIDTH*SCALE, HEIGHT*SCALE);
-			g.setFont(new Font("Arial", Font.BOLD, 48));
+			g.setFont(newFontBig);
 			g.setColor(Color.red);
 			g.drawString("F", WIDTH*SCALE/2, HEIGHT*SCALE/2-15);
-			g.setFont(new Font("Arial", Font.BOLD, 28));
+			g.setFont(newFontSmall);
 			if(showGameOver) {
-				g.drawString("Pressione Enter para reiniciar", WIDTH*SCALE/2-182, HEIGHT*SCALE/2+35);
-				g.drawString("Pressione Esc para sair", WIDTH*SCALE/2-149, HEIGHT*SCALE/2+60);
+				g.drawString("Pressione Enter para reiniciar", WIDTH*SCALE/2-240, HEIGHT*SCALE/2+35);
+				g.drawString("Pressione Esc para sair", WIDTH*SCALE/2-190, HEIGHT*SCALE/2+80);
 			}
 		}
 		if(gameState.equals("Victory")) {
-			Graphics2D g2 = (Graphics2D) g;
 			g2.setColor(new Color(0,0,0,100));
 			g2.fillRect(0, 0, WIDTH*SCALE, HEIGHT*SCALE);
-			g.setFont(new Font("Arial", Font.BOLD, 48));
+			g.setFont(newFontBig);
 			g.setColor(Color.green);
-			g.drawString("Aí sim", WIDTH*SCALE/2, HEIGHT*SCALE/2-15);
-			g.setFont(new Font("Arial", Font.BOLD, 28));
+			g.drawString("Aí sim", WIDTH*SCALE/2-40, HEIGHT*SCALE/2-15);
+			g.setFont(newFontSmall);
 			if(showGameOver) {
-				g.drawString("Pressione Enter para reiniciar", WIDTH*SCALE/2-182, HEIGHT*SCALE/2+35);
-				g.drawString("Pressione Esc para sair", WIDTH*SCALE/2-149, HEIGHT*SCALE/2+60);
+				g.drawString("Pressione Enter para reiniciar", WIDTH*SCALE/2-240, HEIGHT*SCALE/2+35);
+				g.drawString("Pressione Esc para sair", WIDTH*SCALE/2-190, HEIGHT*SCALE/2+80);
 			}
 		}
 		if(gameState.equals("Menu")) {
@@ -307,11 +327,11 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 			}
 		}
 		if(e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-			if(!gameState.equals("Menu")) {
+			if(gameState.equals("Game Over") || gameState.equals("Victory")) {
+				exit = true;
+			} else if(!gameState.equals("Menu")) {
 				gameState = "Menu";
 				menu.pause = true;
-			} else {
-				exit = true;
 			}
 		}
 	}
@@ -351,8 +371,8 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 	@Override
 	public void mousePressed(MouseEvent e) {
 		player.mouseShooting = true;
-		player.mx = e.getX()/3;
-		player.my = e.getY()/3;
+		player.mx = e.getX()/SCALE;
+		player.my = e.getY()/SCALE;
 		
 	}
 
@@ -372,6 +392,18 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 	public void mouseExited(MouseEvent e) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public void mouseDragged(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent e) {
+		this.mx = e.getX();
+		this.my = e.getY();
 	}
 	
 }

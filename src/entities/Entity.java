@@ -15,7 +15,6 @@ public class Entity {
 	public static BufferedImage GUN_LEFT_EN = Game.spriteSheet.getSprite(144, 16, 16, 16);
 	public static BufferedImage GUN_RIGHT_EN = Game.spriteSheet.getSprite(144, 32, 16, 16);
 	public static BufferedImage AMMO_EN = Game.spriteSheet.getSprite(128, 16, 16, 16);
-	//public static BufferedImage ENEMY_EN = Game.spriteSheet.getSprite(32, 48, 16, 16);
 	
 	protected double x;
 	protected double y;
@@ -75,6 +74,10 @@ public class Entity {
 	
 	public void tick() {
 		
+	}
+	
+	public double calcDistance(int x1, int x2, int y1, int y2) {
+		return Math.sqrt(Math.pow(x1-x2, 2) + Math.pow(y1-y2, 2));
 	}
 	
 	public static boolean isColliding(Entity en1, Entity en2) {

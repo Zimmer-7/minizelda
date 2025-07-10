@@ -47,90 +47,93 @@ public class Enemy extends Entity {
 	
 	public void tick() {
 		
-		double lowSpeed = speed * 0.8;
-		double auxSpeed = speed;
-		
-		if((x < Game.player.getX())&&(y > Game.player.getY()) || 
-		   (x > Game.player.getX())&&(y > Game.player.getY()) || 
-		   (x < Game.player.getX())&&(y < Game.player.getY()) || 
-		   (x > Game.player.getX())&&(y < Game.player.getY())) {
-			speed = lowSpeed;
-		}
-		if(!touching()) {
-			if(Game.rand.nextInt(100) < 70) {
-				if(x < Game.player.getX() && 
-					World.isFree((int)(x+speed), (int)y) &&
-					!isCollidingEn((int)(x+speed), (int)y)) {
-					
-					x+=speed;
-					right = true;
-					left = false;
-					
-				}
-				if(x > Game.player.getX() && 
-					World.isFree((int)(x-speed), (int)y) &&
-					!isCollidingEn((int)(x-speed), (int)y)) {
-					
-					x-=speed;
-					right = false;
-					left = true;
-					
-				}
-				if(y < Game.player.getY() &&
-					World.isFree((int)x, (int)(y+speed)) &&
-					!isCollidingEn((int)x, (int)(y+speed))) {
+		if(this.calcDistance(this.getX(), Game.player.getX(), this.getY(), Game.player.getY()) < 150){
+			double lowSpeed = speed * 0.8;
+			double auxSpeed = speed;
 			
-					y+=speed;
-					
-				}
-				if(y > Game.player.getY() && 
-					World.isFree((int)x, (int)(y-speed)) &&
-					!isCollidingEn((int)x, (int)(y-speed))) {
-					
-					y-=speed;
-					
-				}
+			if((x < Game.player.getX())&&(y > Game.player.getY()) || 
+			   (x > Game.player.getX())&&(y > Game.player.getY()) || 
+			   (x < Game.player.getX())&&(y < Game.player.getY()) || 
+			   (x > Game.player.getX())&&(y < Game.player.getY())) {
+				speed = lowSpeed;
 			}
-			
-		} else {
-			if(frames == 0) {
-				Sound.hurt.play();
-				Game.player.life --;
-				if(Game.rand.nextInt(100) < 25)
+			if(!touching()) {
+				if(Game.rand.nextInt(100) < 75) {
+					if(x < Game.player.getX() && 
+						World.isFree((int)(x+speed), (int)y) &&
+						!isCollidingEn((int)(x+speed), (int)y)) {
+						
+						x+=speed;
+						right = true;
+						left = false;
+						
+					}
+					if(x > Game.player.getX() && 
+						World.isFree((int)(x-speed), (int)y) &&
+						!isCollidingEn((int)(x-speed), (int)y)) {
+						
+						x-=speed;
+						right = false;
+						left = true;
+						
+					}
+					if(y < Game.player.getY() &&
+						World.isFree((int)x, (int)(y+speed)) &&
+						!isCollidingEn((int)x, (int)(y+speed))) {
+				
+						y+=speed;
+						
+					}
+					if(y > Game.player.getY() && 
+						World.isFree((int)x, (int)(y-speed)) &&
+						!isCollidingEn((int)x, (int)(y-speed))) {
+						
+						y-=speed;
+						
+					}
+				}
+				
+			} else {
+				if(frames == 0) {
+					Sound.hurt.play();
 					Game.player.life --;
-				Game.player.damaged = true;
+					if(Game.rand.nextInt(100) < 25)
+						Game.player.life --;
+					Game.player.damaged = true;
+				}
 			}
-		}
-		
-		frames ++;
-		if(frames == maxFrames) {
-			index++;
-			frames = 0;
-				
-			if(index > maxIndex) 
-				index = 0;
-				
-		}
-		
-		checkDamage();
-		
-		if(damaged) {
-			damageFrames ++;
-			if(damageFrames == maxFrames) {
-				damageFrames = 0;
-				damaged = false;
-			}
-		}
-		
-		if(life <= 0) {
-			Game.entities.remove(this);
-			Game.enemies.remove(this);
-			return;
-		}
 			
-		speed = auxSpeed;
+			frames ++;
+			if(frames == maxFrames) {
+				index++;
+				frames = 0;
+					
+				if(index > maxIndex) 
+					index = 0;
+					
+			}
+			
+			checkDamage();
+			
+			if(damaged) {
+				damageFrames ++;
+				if(damageFrames == maxFrames) {
+					damageFrames = 0;
+					damaged = false;
+				}
+			}
+			
+			if(life <= 0) {
+				Game.entities.remove(this);
+				Game.enemies.remove(this);
+				return;
+			}
+				
+			speed = auxSpeed;
+		} 
 		
 	}
+		
 	
 	public boolean touching() {
 		Rectangle current = new Rectangle(this.getX() + maskx, this.getY() + masky, maskw, maskh);

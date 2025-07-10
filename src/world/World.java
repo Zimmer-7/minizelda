@@ -17,7 +17,7 @@ public class World {
 	public static int WIDTH;
 	public static int HEIGHT;
 	
-	public World(String path) {
+	public World(String path, int level) {
 		
 		try {
 			BufferedImage map = ImageIO.read(getClass().getResource(path));
@@ -30,10 +30,16 @@ public class World {
 			for(int xx = 0; xx < WIDTH; xx++) {
 				for(int yy = 0; yy < HEIGHT; yy++) {
 					pos = xx + (yy*WIDTH);
-					tiles[pos] = new Floor(xx*16, yy*16, Tile.TILE_FLOOR);
+					if(level == 1)
+						tiles[pos] = new Floor(xx*16, yy*16, Tile.TILE_FLOOR_GRASS);
+					if(level == 2)
+						tiles[pos] = new Floor(xx*16, yy*16, Tile.TILE_FLOOR_EARTH);
 					if(pixels[pos] == 0xFFFFFFFF) {
 						//parede
-						tiles[pos] = new Wall(xx*16, yy*16, Tile.TILE_WALL);
+						if(level == 1)
+							tiles[pos] = new Wall(xx*16, yy*16, Tile.TILE_WALL_DARK);
+						if(level == 2)
+							tiles[pos] = new Wall(xx*16, yy*16, Tile.TILE_WALL_LIGHT);
 					}
 					if(pixels[pos] == 0xFF4838FF) {
 						//personagem
@@ -85,7 +91,7 @@ public class World {
 				tiles[x2 + (y2*WIDTH)] instanceof Wall);
 	}
 	
-	public static void startLevel(String level) {
+	public static void startLevel(int level) {
 		Game.entities.clear();
 		Game.enemies.clear();
 		Game.items.clear();
@@ -96,7 +102,7 @@ public class World {
 		Game.bullets = new ArrayList<>();
 		Game.spriteSheet = new SpriteSheet("/recursos.png");	
 		Game.player = new Player(0, 0, 16, 16, Game.spriteSheet.getSprite(32, 0, 16, 16));
-		Game.world = new World("/"+level);
+		Game.world = new World("/mapa"+level+".png", level);
 		Game.entities.add(Game.player);
 		Game.gameState = "Normal";
 	}

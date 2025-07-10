@@ -1,11 +1,13 @@
 package entities;
 
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import grafics.SpriteSheet;
 import main.Game;
+import main.Sound;
 import world.Camera;
 import world.World;
 
@@ -33,11 +35,14 @@ public class Player extends Entity {
 	
 	private boolean moved = false;
 	public boolean damaged = false;
-	private boolean withGun = false;
+	public boolean withGun = false;
 	public boolean shooting = false;
 	public boolean mouseShooting = false;
 	
 	public int ammo = 0;
+	private double angle;
+	private double dx;
+	private double dy;
 	
 	private BufferedImage[] playerRightDown;
 	private BufferedImage[] playerLeftDown;
@@ -134,6 +139,7 @@ public class Player extends Entity {
 		if(shooting) {
 			shooting = false;
 			if(withGun && ammo > 0) {
+				Sound.shoot.play();
 				ammo--;
 				int px = 0;
 				if(dirX > 0) {
@@ -144,17 +150,19 @@ public class Player extends Entity {
 			}
 		}
 		
+		int px = 0;
+		if(dirX > 0) {
+			px = 11;
+		}
+		angle = Math.atan2(my - ((double)this.getY()+8 - Camera.y), mx - ((double)this.getX()+px - Camera.x));
+		dx = Math.cos(angle);
+		dy = Math.sin(angle);
+		
+		
 		if(mouseShooting) {
 			mouseShooting = false;
 			if(withGun && ammo > 0) {
 				ammo--;
-				int px = 0;
-				if(dirX > 0) {
-					px = 11;
-				}
-				double angle = Math.atan2(my - ((double)this.getY()+8 - Camera.y), mx - ((double)this.getX()+px - Camera.x));
-				double dx = Math.cos(angle);
-				double dy = Math.sin(angle);
 				
 				Bullet bullet = new Bullet((double)this.getX()+px, (double)this.getY()+8, 3, 3, null, dx, dy);
 				Game.bullets.add(bullet);
@@ -180,6 +188,7 @@ public class Player extends Entity {
 			Entity atual = Game.items.get(i);
 			if(Entity.isColliding(this, atual)) {
 				if(atual instanceof MedKit && life < 100) {
+					Sound.pickup.play();
 					life += 25;
 						
 					if(life > 100)
@@ -189,12 +198,13 @@ public class Player extends Entity {
 					Game.entities.remove(atual);
 				}
 				if(atual instanceof Ammo) {
+					Sound.pickup.play();
 					ammo += 30;
-						
 					Game.items.remove(atual);
 					Game.entities.remove(atual);
 				}
 				if(atual instanceof Gun) {
+					Sound.pickup.play();
 					withGun = true;
 						
 					Game.items.remove(atual);
@@ -237,6 +247,11 @@ public class Player extends Entity {
 		if(damaged) {
 			g.drawImage(playerDamage, this.getX() - Camera.x, this.getY() - Camera.y, null);
 		}
+		/*if(withGun) {
+			Graphics2D g2 = (Graphics2D) g;
+			g2.rotate(angle, this.getX() - Camera.x + 3, this.getY() - Camera.y + 10);
+			g.drawImage(Entity.GUN_RIGHT_EN, this.getX() - Camera.x + 5, this.getY() - Camera.y + 2, null);
+		}*/
 		
 	}
 	
