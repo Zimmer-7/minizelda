@@ -4,9 +4,12 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.util.List;
 
 import main.Game;
 import world.Camera;
+import world.Node;
+import world.Vector2i;
 
 public class Entity {
 	
@@ -27,6 +30,8 @@ public class Entity {
 	protected int maskw;
 	
 	private BufferedImage sprite;
+	
+	protected List<Node> path;
 	
 	public Entity(double x, double y, int width, int height, BufferedImage sprite) {
 		this.x = x;

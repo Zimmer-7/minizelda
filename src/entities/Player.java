@@ -162,6 +162,7 @@ public class Player extends Entity {
 		if(mouseShooting) {
 			mouseShooting = false;
 			if(withGun && ammo > 0) {
+				Sound.shoot.play();
 				ammo--;
 				
 				Bullet bullet = new Bullet((double)this.getX()+px, (double)this.getY()+8, 3, 3, null, dx, dy);

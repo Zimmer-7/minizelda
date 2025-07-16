@@ -8,12 +8,6 @@ import javax.imageio.ImageIO;
 public class SpriteSheet {
 	private BufferedImage spritesheet;
 	
-	public static BufferedImage[] inimigo_front;
-	
-	public static BufferedImage[] player_front;
-	
-	public static BufferedImage tree;
-	
 	public SpriteSheet(String path) {
 		try {
 			spritesheet = ImageIO.read(getClass().getResource(path));

@@ -14,12 +14,14 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 
@@ -27,6 +29,7 @@ import entities.Bullet;
 import entities.Enemy;
 import entities.Entity;
 import entities.Player;
+import grafics.Light;
 import grafics.SpriteSheet;
 import grafics.UI;
 import world.Camera;
@@ -51,6 +54,9 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 	
 	private BufferedImage image;
 	public Menu menu;
+	
+	public int[] pixels;
+	//public Light light;
 	
 	public static List<Entity> entities;
 	public static List<Enemy> enemies;
@@ -84,6 +90,9 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 		
 		image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
 		ui = new UI();
+		
+		pixels = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
+		//light = new Light();
 	
 		entities = new ArrayList<>();
 		enemies = new ArrayList<>();
@@ -155,7 +164,7 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 					gameState = "Victory";
 					return;
 				}
-				String newWorld = "mapa"+curLevel+".png";
+				//String newWorld = "mapa"+curLevel+".png";
 				World.startLevel(curLevel);
 			}
 		}
@@ -206,6 +215,8 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 			Entity e = bullets.get(i);
 			e.render(g);
 		}
+		
+		//light.applyLight();
 		
 		g.dispose();
 		g = bs.getDrawGraphics();
@@ -274,7 +285,7 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 			}
 			
 			if(System.currentTimeMillis() - timer >= 1000) {
-				System.out.println("FPS: " + frames);
+				//System.out.println("FPS: " + frames);
 				frames = 0;
 				timer += 1000;
 			}
@@ -286,7 +297,6 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 
 	@Override
 	public void keyTyped(KeyEvent e) {
-		// TODO Auto-generated method stub
 		
 	}
 
@@ -364,7 +374,6 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		// TODO Auto-generated method stub
 		
 	}
 
@@ -378,25 +387,21 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void mouseEntered(MouseEvent e) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void mouseExited(MouseEvent e) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
-		// TODO Auto-generated method stub
 		
 	}
 

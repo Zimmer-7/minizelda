@@ -4,15 +4,19 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.util.List;
 
 import main.Game;
 import main.Sound;
+import world.AStar;
 import world.Camera;
+import world.Node;
+import world.Vector2i;
 import world.World;
 
 public class Enemy extends Entity {
 	
-	private double speed = 1.2;
+	private double speed = 2;
 	private boolean right = false;
 	private boolean left = false;
 	private int life = 6;
@@ -47,60 +51,28 @@ public class Enemy extends Entity {
 	
 	public void tick() {
 		
-		if(this.calcDistance(this.getX(), Game.player.getX(), this.getY(), Game.player.getY()) < 150){
-			double lowSpeed = speed * 0.8;
-			double auxSpeed = speed;
+		if(this.calcDistance(this.getX(), Game.player.getX(), this.getY(), Game.player.getY()) < 1000){
 			
-			if((x < Game.player.getX())&&(y > Game.player.getY()) || 
-			   (x > Game.player.getX())&&(y > Game.player.getY()) || 
-			   (x < Game.player.getX())&&(y < Game.player.getY()) || 
-			   (x > Game.player.getX())&&(y < Game.player.getY())) {
-				speed = lowSpeed;
+			if(path == null || path.isEmpty()) {
+				Vector2i start = new Vector2i((int)(x/16), (int)(y/16));
+				Vector2i end = new Vector2i((int)((Game.player.x+8)/16), (int)((Game.player.y+8)/16));
+				path = AStar.findPath(start, end);
 			}
-			if(!touching()) {
-				if(Game.rand.nextInt(100) < 75) {
-					if(x < Game.player.getX() && 
-						World.isFree((int)(x+speed), (int)y) &&
-						!isCollidingEn((int)(x+speed), (int)y)) {
-						
-						x+=speed;
-						right = true;
-						left = false;
-						
-					}
-					if(x > Game.player.getX() && 
-						World.isFree((int)(x-speed), (int)y) &&
-						!isCollidingEn((int)(x-speed), (int)y)) {
-						
-						x-=speed;
-						right = false;
-						left = true;
-						
-					}
-					if(y < Game.player.getY() &&
-						World.isFree((int)x, (int)(y+speed)) &&
-						!isCollidingEn((int)x, (int)(y+speed))) {
-				
-						y+=speed;
-						
-					}
-					if(y > Game.player.getY() && 
-						World.isFree((int)x, (int)(y-speed)) &&
-						!isCollidingEn((int)x, (int)(y-speed))) {
-						
-						y-=speed;
-						
-					}
-				}
-				
-			} else {
-				if(frames == 0) {
-					Sound.hurt.play();
+			
+			followPath(path, speed);
+			
+			if(Game.rand.nextInt(100) < 15) {
+				Vector2i start = new Vector2i((int)(x/16), (int)(y/16));
+				Vector2i end = new Vector2i((int)((Game.player.x+8)/16), (int)((Game.player.y+8)/16));
+				path = AStar.findPath(start, end);
+			}
+			
+			if(touching() && frames == 0) {
+				Sound.hurt.play();
+				Game.player.life --;
+				if(Game.rand.nextInt(100) < 25)
 					Game.player.life --;
-					if(Game.rand.nextInt(100) < 25)
-						Game.player.life --;
-					Game.player.damaged = true;
-				}
+				Game.player.damaged = true;
 			}
 			
 			frames ++;
@@ -115,6 +87,12 @@ public class Enemy extends Entity {
 			
 			checkDamage();
 			
+			if(life <= 0) {
+				Game.entities.remove(this);
+				Game.enemies.remove(this);
+				return;
+			}
+			
 			if(damaged) {
 				damageFrames ++;
 				if(damageFrames == maxFrames) {
@@ -122,14 +100,7 @@ public class Enemy extends Entity {
 					damaged = false;
 				}
 			}
-			
-			if(life <= 0) {
-				Game.entities.remove(this);
-				Game.enemies.remove(this);
-				return;
-			}
 				
-			speed = auxSpeed;
 		} 
 		
 	}
@@ -172,6 +143,38 @@ public class Enemy extends Entity {
 		}
 		
 		return false;
+	}
+	
+	public void followPath(List<Node> path, double speed) {
+		if(path != null && !path.isEmpty()) {
+			Vector2i target = path.get(path.size() - 1).tile;
+			
+			if(Game.rand.nextInt(100) < 50) {	
+				if(x < target.x*16 &&
+					!isCollidingEn((int)(x+speed), (int)y)) {
+					x+=speed;
+					right = true;
+					left = false;
+				}
+				if(x > target.x*16 &&
+					!isCollidingEn((int)(x-speed), (int)y)) {
+					x-=speed;
+					right = false;
+					left = true;
+				}
+				if(y < target.y*16 &&
+					!isCollidingEn((int)x, (int)(y+speed))) 
+					y+=speed;
+		
+				if(y > target.y*16 &&
+					!isCollidingEn((int)x, (int)(y-speed))) 
+					y-=speed;
+					
+				if(x == target.x*16 && y == target.y*16)
+					path.remove(path.size() - 1);
+			}
+		}
+			
 	}
 	
 	@Override
