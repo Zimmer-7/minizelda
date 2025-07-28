@@ -7,8 +7,10 @@ import main.Game;
 
 public class Tile {
 	
-	public static BufferedImage TILE_FLOOR_GRASS = Game.spriteSheet.getSprite(0, 0, 16, 16);
-	public static BufferedImage TILE_FLOOR_EARTH = Game.spriteSheet.getSprite(0, 16, 16, 16);
+	public static BufferedImage TILE_FLOOR_GRASS_1 = Game.spriteSheet.getSprite(0, 0, 16, 16);
+	public static BufferedImage TILE_FLOOR_GRASS_2 = Game.spriteSheet.getSprite(0, 32, 16, 16);
+	public static BufferedImage TILE_FLOOR_EARTH_1 = Game.spriteSheet.getSprite(0, 16, 16, 16);
+	public static BufferedImage TILE_FLOOR_EARTH_2 = Game.spriteSheet.getSprite(0, 48, 16, 16);
 	public static BufferedImage TILE_WALL_DARK = Game.spriteSheet.getSprite(16, 0, 16, 16);
 	public static BufferedImage TILE_WALL_LIGHT = Game.spriteSheet.getSprite(16, 16, 16, 16);
 	

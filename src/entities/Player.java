@@ -1,7 +1,9 @@
 package entities;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
@@ -57,6 +59,8 @@ public class Player extends Entity {
 	public Player(double x, double y, int width, int height, BufferedImage sprite) {
 		super(x, y, width, height, sprite);
 		
+		this.setMask(3,0,9,16);
+		
 		playerRightDown = new BufferedImage[2];
 		playerLeftDown = new BufferedImage[2];
 		playerRightUp = new BufferedImage[2];
@@ -80,6 +84,8 @@ public class Player extends Entity {
 		playerStopRightUp = Game.spriteSheet.getSprite(64, 16, 16, 16);
 		playerStopLeftUp = Game.spriteSheet.getSprite(112, 16, 16, 16);
 		playerDamage = Game.spriteSheet.getSprite(112, 48, 16, 16);
+		
+		depth = 1;
 	}
 	
 	@Override
@@ -253,7 +259,8 @@ public class Player extends Entity {
 			g2.rotate(angle, this.getX() - Camera.x + 3, this.getY() - Camera.y + 10);
 			g.drawImage(Entity.GUN_RIGHT_EN, this.getX() - Camera.x + 5, this.getY() - Camera.y + 2, null);
 		}*/
-		
+		//g.setColor(Color.yellow);
+		//g.drawRect(this.getX() + this.maskx - Camera.x, this.getY() + this.masky - Camera.y, this.maskw, this.maskh);
 	}
 	
 }

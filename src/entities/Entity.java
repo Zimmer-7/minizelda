@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.util.Comparator;
 import java.util.List;
 
 import main.Game;
@@ -28,6 +29,8 @@ public class Entity {
 	protected int masky;
 	protected int maskh;
 	protected int maskw;
+	
+	public int depth;
 	
 	private BufferedImage sprite;
 	
@@ -80,6 +83,20 @@ public class Entity {
 	public void tick() {
 		
 	}
+	
+	public static Comparator <Entity> nodeSorter = new Comparator <Entity>() {
+		
+		@Override
+		public int compare(Entity n1, Entity n2) {
+			if(n2.depth < n1.depth) 
+				return + 1;
+			
+			if(n2.depth > n1.depth) 
+				return - 1;
+			
+			return 0;
+		}
+	};
 	
 	public double calcDistance(int x1, int x2, int y1, int y2) {
 		return Math.sqrt(Math.pow(x1-x2, 2) + Math.pow(y1-y2, 2));

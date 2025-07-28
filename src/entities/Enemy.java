@@ -46,6 +46,8 @@ public class Enemy extends Entity {
 		enemyDamageLeft = Game.spriteSheet.getSprite(32, 80, 16, 16);
 		enemyDamageRight = Game.spriteSheet.getSprite(48, 80, 16, 16);
 		
+		depth = 0;
+		
 		this.setMask(3, 5, 8, 6);
 	}
 	
@@ -61,7 +63,7 @@ public class Enemy extends Entity {
 			
 			followPath(path, speed);
 			
-			if(Game.rand.nextInt(100) < 15) {
+			if(Game.rand.nextInt(100) < 10) {
 				Vector2i start = new Vector2i((int)(x/16), (int)(y/16));
 				Vector2i end = new Vector2i((int)((Game.player.x+8)/16), (int)((Game.player.y+8)/16));
 				path = AStar.findPath(start, end);

@@ -2,11 +2,15 @@ package main;
 
 import java.awt.Canvas;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -18,6 +22,7 @@ import java.awt.image.DataBufferInt;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -116,16 +121,26 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 	}
 	
 	public void initFrame() {
-		frame = new JFrame("Mini Zelda");
-		
-		frame.add(this);
-		
+		frame = new JFrame("Mini Zelda");		
+		frame.add(this);	
 		frame.pack();
 		
+		Image icone = null;
+		try {
+			icone = ImageIO.read(getClass().getResource("/icon.png"));
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		Toolkit toolkit = Toolkit.getDefaultToolkit();
+		Image cursor = toolkit.getImage(getClass().getResource("/cursor.png"));
+		Cursor c = toolkit.createCustomCursor(cursor, new Point(0, 0), "img");
+		
+		frame.setCursor(c);
+		frame.setIconImage(icone);
 		frame.setLocationRelativeTo(null);
 		frame.setResizable(false);
 		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-		
 		frame.setVisible(true);
 	}
 	
@@ -205,6 +220,8 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 		g.fillRect(0, 0, WIDTH, HEIGHT);
 		
 		world.render(g);
+		
+		Collections.sort(entities, Entity.nodeSorter);
 		
 		for(int i = 0; i < entities.size(); i++) {
 			Entity e = entities.get(i);

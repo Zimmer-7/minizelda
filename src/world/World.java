@@ -30,10 +30,20 @@ public class World {
 			for(int xx = 0; xx < WIDTH; xx++) {
 				for(int yy = 0; yy < HEIGHT; yy++) {
 					pos = xx + (yy*WIDTH);
-					if(level == 1)
-						tiles[pos] = new Floor(xx*16, yy*16, Tile.TILE_FLOOR_GRASS);
-					if(level == 2)
-						tiles[pos] = new Floor(xx*16, yy*16, Tile.TILE_FLOOR_EARTH);
+					if(level == 1) {
+						if(Game.rand.nextInt(100) < 50) {
+							tiles[pos] = new Floor(xx*16, yy*16, Tile.TILE_FLOOR_GRASS_1);
+						} else {
+							tiles[pos] = new Floor(xx*16, yy*16, Tile.TILE_FLOOR_GRASS_2);
+						}
+					}
+					if(level == 2) {
+						if(Game.rand.nextInt(100) < 50) {
+							tiles[pos] = new Floor(xx*16, yy*16, Tile.TILE_FLOOR_EARTH_1);
+						} else {
+							tiles[pos] = new Floor(xx*16, yy*16, Tile.TILE_FLOOR_EARTH_2);
+						}
+					}
 					if(pixels[pos] == 0xFFFFFFFF) {
 						//parede
 						if(level == 1)
@@ -105,6 +115,39 @@ public class World {
 		Game.world = new World("/mapa"+level+".png", level);
 		Game.entities.add(Game.player);
 		Game.gameState = "Normal";
+	}
+	
+	public static void renderMiniMap(int[] miniMap) {
+		/*for(int i = 0; i < miniMap.length; i++) {
+			miniMap[i] = 0;
+		}*/
+		for(int xx = 0; xx < WIDTH; xx++) {
+			for(int yy = 0; yy < HEIGHT; yy++) {
+				if(tiles[xx + yy*WIDTH] instanceof Wall)
+					miniMap[xx + yy*WIDTH] = 0xffffff;
+			}
+		}
+		
+		int x;
+		int y;
+		Entity en;
+		
+		for(int i = 0; i < Game.entities.size(); i++) {
+			en = Game.entities.get(i);
+			x = en.getX()/16;
+			y = Game.entities.get(i).getY()/16;
+			
+			if(en instanceof Player) 
+				miniMap[x + y*WIDTH] = 0x0000ff;
+			if(en instanceof Enemy)
+				miniMap[x + y*WIDTH] = 0xff0000;
+			if(en instanceof MedKit)
+				miniMap[x + y*WIDTH] = 0xff00ff;
+			if(en instanceof Ammo)
+				miniMap[x + y*WIDTH] = 0xffff00;
+			if(en instanceof Gun)
+				miniMap[x + y*WIDTH] = 0x00ff00;
+		}
 	}
 
 	public void render(Graphics g) {

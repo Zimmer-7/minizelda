@@ -1,5 +1,0 @@
-mapa:9
-vida:877
-balas:7
-x:;9;
-y:;;=
