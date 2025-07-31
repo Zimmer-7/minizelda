@@ -11,6 +11,8 @@ import main.Game;
 import world.Camera;
 import world.Node;
 import world.Vector2i;
+import world.Wall;
+import world.World;
 
 public class Entity {
 	
@@ -107,6 +109,43 @@ public class Entity {
 		Rectangle en2Mask = new Rectangle(en2.getX() + en2.maskx, en2.getY() + en2.masky, en2.maskw, en2.maskh);
 		
 		return en2Mask.intersects(en1Mask);
+	}
+	
+	protected boolean isCollidingWall(int xx, int yy) {
+		Rectangle en = new Rectangle(xx + maskx, yy + masky, maskw, maskh);
+		
+		int x1 = (xx+maskx)/16;
+		int y1 = (yy+masky)/16;
+		int x2 = (xx+maskx+maskw-1) / 16;
+		int y2 = (yy+masky+maskh-1) / 16;
+		Rectangle wall = null;
+		
+		if(World.tiles[x1 + (y1*World.WIDTH)] instanceof Wall) {
+			wall = new Rectangle(x1*16, y1*16, 16, 16);
+			if(en.intersects(wall))
+				return true;
+		}
+				
+		if(World.tiles[x1 + (y2*World.WIDTH)] instanceof Wall) {
+			wall = new Rectangle(x1*16, y2*16, 16, 16);
+			if(en.intersects(wall))
+				return true;
+		}
+		
+		if(World.tiles[x2 + (y1*World.WIDTH)] instanceof Wall) {
+			wall = new Rectangle(x2*16, y1*16, 16, 16);
+			if(en.intersects(wall))
+				return true;
+		}
+				
+		if(World.tiles[x2 + (y2*World.WIDTH)] instanceof Wall) {
+			wall = new Rectangle(x2*16, y2*16, 16, 16);
+			if(en.intersects(wall))
+				return true;
+		}
+			
+		return false;
+			
 	}
 	
 	public void render(Graphics g) {

@@ -30,7 +30,8 @@ public class Bullet extends Entity {
 		if(time == 0) 
 			Game.bullets.remove(this);
 		
-		if(!World.isFree((int)x, (int)y)) {
+		if(isCollidingWall((int)x, (int)y)) {
+			World.generateParticles(50, (int)x, (int)y);
 			Game.bullets.remove(this);
 		}
 	}

@@ -56,6 +56,11 @@ public class World {
 						Game.player.setX(xx*16.0);
 						Game.player.setY(yy*16.0);
 					}
+					if(pixels[pos] == 0xFF808080) {
+						//NPC
+						Game.npc.setX(xx*16.0);
+						Game.npc.setY(yy*16.0);
+					}
 					if(pixels[pos] == 0xFFFF0000) {
 						//inimigo
 						Enemy en = new Enemy(xx*16.0, yy*16.0, 16, 16, null);
@@ -112,8 +117,10 @@ public class World {
 		Game.bullets = new ArrayList<>();
 		Game.spriteSheet = new SpriteSheet("/recursos.png");	
 		Game.player = new Player(0, 0, 16, 16, Game.spriteSheet.getSprite(32, 0, 16, 16));
+		Game.npc = new Npc(0, 0, 16, 16, Game.spriteSheet.getSprite(80, 48, 16, 16));
 		Game.world = new World("/mapa"+level+".png", level);
 		Game.entities.add(Game.player);
+		Game.entities.add(Game.npc);
 		Game.gameState = "Normal";
 	}
 	
@@ -147,7 +154,14 @@ public class World {
 				miniMap[x + y*WIDTH] = 0xffff00;
 			if(en instanceof Gun)
 				miniMap[x + y*WIDTH] = 0x00ff00;
+			if(en instanceof Npc) 
+				miniMap[x + y*WIDTH] = 0x808080;
 		}
+	}
+	
+	public static void generateParticles(int amount, int x, int y) {
+		for(int i = 0; i < amount; i++) 
+			Game.entities.add(new Particle(x, y, 1, 1, null));
 	}
 
 	public void render(Graphics g) {

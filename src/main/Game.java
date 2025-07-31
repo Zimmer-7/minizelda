@@ -33,6 +33,7 @@ import javax.swing.WindowConstants;
 import entities.Bullet;
 import entities.Enemy;
 import entities.Entity;
+import entities.Npc;
 import entities.Player;
 import grafics.Light;
 import grafics.SpriteSheet;
@@ -53,6 +54,7 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 	public static World world;
 	public static int curLevel = 1;
 	private int maxLevel = 2;
+	public static Npc npc;
 	
 	public int mx;
 	public int my;
@@ -83,7 +85,7 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 	private boolean restartGame = false;
 	private boolean exit = false;
 	
-	private int countPrep = 5;
+	private int countPrep = 4;
 	private int framesPrep = 0;
 	private int maxFramesPrep = 60;
 	
@@ -110,8 +112,10 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 		bullets = new ArrayList<>();
 		spriteSheet = new SpriteSheet("/recursos.png");	
 		player = new Player(0, 0, 16, 16, spriteSheet.getSprite(32, 0, 16, 16));
+		npc = new Npc(0, 0, 16, 16, spriteSheet.getSprite(80, 48, 16, 16));
 		world = new World("/mapa1.png", 1);
 		entities.add(player);
+		entities.add(npc);
 		
 		try {
 			newFontBig = Font.createFont(Font.TRUETYPE_FONT, stream).deriveFont(80f);
@@ -198,7 +202,7 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 				}
 			} else {
 				gameState = "Normal";
-				countPrep = 5;
+				countPrep = 3;
 			}
 		}
 		if(gameState.equals("Game Over") || gameState.equals("Victory") || gameState.equals("Prep")) {
