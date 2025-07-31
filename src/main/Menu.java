@@ -47,7 +47,7 @@ public class Menu {
 		if(enter) {
 			enter = false;
 			if(currOption == 0) {
-				Game.gameState = "Normal";
+				Game.gameState = "Prep";
 				if(!pause) {
 					File file = new File(saveFile);
 					file.delete();

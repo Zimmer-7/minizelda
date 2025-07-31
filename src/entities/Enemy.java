@@ -6,6 +6,7 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
+import main.AdvancedSound;
 import main.Game;
 import main.Sound;
 import world.AStar;
@@ -70,7 +71,7 @@ public class Enemy extends Entity {
 			}
 			
 			if(touching() && frames == 0) {
-				Sound.hurt.play();
+				AdvancedSound.hurt.play();
 				Game.player.life --;
 				if(Game.rand.nextInt(100) < 25)
 					Game.player.life --;

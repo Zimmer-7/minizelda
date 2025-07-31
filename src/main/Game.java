@@ -83,14 +83,19 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 	private boolean restartGame = false;
 	private boolean exit = false;
 	
+	private int countPrep = 5;
+	private int framesPrep = 0;
+	private int maxFramesPrep = 60;
+	
 	public Game () {
-		Sound.musicBackGround.loop();
+		AdvancedSound.background.loop();
 		rand = new Random();
 		addKeyListener(this);
 		addMouseListener(this);
 		addMouseMotionListener(this);
 		
 		this.setPreferredSize(new Dimension(WIDTH*SCALE, HEIGHT*SCALE));
+		//this.setPreferredSize(Toolkit.getDefaultToolkit().getScreenSize());
 		initFrame();
 		
 		image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
@@ -122,7 +127,8 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 	
 	public void initFrame() {
 		frame = new JFrame("Mini Zelda");		
-		frame.add(this);	
+		frame.add(this);
+		//frame.setUndecorated(true);
 		frame.pack();
 		
 		Image icone = null;
@@ -183,9 +189,21 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 				World.startLevel(curLevel);
 			}
 		}
-		if(gameState.equals("Game Over") || gameState.equals("Victory")) {
+		if(gameState.equals("Prep")) {
+			if(countPrep > 0) {
+				framesPrep++;
+				if(framesPrep == maxFramesPrep) {
+					countPrep --;
+					framesPrep = 0;
+				}
+			} else {
+				gameState = "Normal";
+				countPrep = 5;
+			}
+		}
+		if(gameState.equals("Game Over") || gameState.equals("Victory") || gameState.equals("Prep")) {
 			framesGameOver++;
-			if(framesGameOver == 50) {
+			if(framesGameOver == 45) {
 				framesGameOver = 0;
 				if(showGameOver) {
 					showGameOver = false;
@@ -238,6 +256,7 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 		g.dispose();
 		g = bs.getDrawGraphics();
 		g.drawImage(image, 0, 0, WIDTH*SCALE, HEIGHT*SCALE, null);
+		//g.drawImage(image, 0, 0, Toolkit.getDefaultToolkit().getScreenSize().width, Toolkit.getDefaultToolkit().getScreenSize().height, null);
 		
 		ui.render(g);
 		Graphics2D g2 = (Graphics2D) g;
@@ -267,6 +286,12 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 		}
 		if(gameState.equals("Menu")) {
 			menu.render(g);
+		}
+		if(gameState.equals("Prep") && showGameOver) {
+			g.setFont(newFontSmall);
+			g.setColor(Color.white);
+			g.drawString("WASD ou setas para se mover", WIDTH*SCALE/2-240, HEIGHT*SCALE/2-15);
+			g.drawString("mouse ou espaco para atirar", WIDTH*SCALE/2-240, HEIGHT*SCALE/2+25);
 		}
 		
 		bs.show();
@@ -302,7 +327,7 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 			}
 			
 			if(System.currentTimeMillis() - timer >= 1000) {
-				//System.out.println("FPS: " + frames);
+				System.out.println("FPS: " + frames);
 				frames = 0;
 				timer += 1000;
 			}

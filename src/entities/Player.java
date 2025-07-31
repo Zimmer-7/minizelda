@@ -8,9 +8,11 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import grafics.SpriteSheet;
+import main.AdvancedSound;
 import main.Game;
 import main.Sound;
 import world.Camera;
+import world.Wall;
 import world.World;
 
 public class Player extends Entity {
@@ -98,22 +100,22 @@ public class Player extends Entity {
 			speed = lowSpeed;
 		}
 		
-		if(right && World.isFree((int)(x+speed), (int)y)) {
+		if(right && !isCollidingWall((int)(x+speed), (int)y)) {
 			moved = true;
 			dirX = 1;
 			x+=speed;
 		}
-		if(left && World.isFree((int)(x-speed), (int)y)) {
+		if(left && !isCollidingWall((int)(x-speed), (int)y)) {
 			moved = true;
 			dirX = -1;
 			x-=speed;
 		}
-		if(up && World.isFree((int)x, (int)(y-speed))) {
+		if(up && !isCollidingWall((int)x, (int)(y-speed))) {
 			moved = true;
 			dirY = 1;
 			y-=speed;
 		}
-		if(down && World.isFree((int)x, (int)(y+speed))) {
+		if(down && !isCollidingWall((int)x, (int)(y+speed))) {
 			moved = true;
 			dirY = -1;
 			y+=speed;
@@ -145,7 +147,7 @@ public class Player extends Entity {
 		if(shooting) {
 			shooting = false;
 			if(withGun && ammo > 0) {
-				Sound.shoot.play();
+				AdvancedSound.shoot.play();
 				ammo--;
 				int px = 0;
 				if(dirX > 0) {
@@ -190,12 +192,49 @@ public class Player extends Entity {
 		Camera.y = Camera.clamp(this.getY() - Game.HEIGHT/2, 0, World.HEIGHT*16 - Game.HEIGHT);
 	}
 	
+	private boolean isCollidingWall(int xx, int yy) {
+		Rectangle player = new Rectangle(xx + maskx, yy + masky, maskw, maskh);
+		
+		int x1 = (xx+maskx)/16;
+		int y1 = (yy+masky)/16;
+		int x2 = (xx+maskx+maskw-1) / 16;
+		int y2 = (yy+masky+maskh-1) / 16;
+		Rectangle wall = null;
+		
+		if(World.tiles[x1 + (y1*World.WIDTH)] instanceof Wall) {
+			wall = new Rectangle(x1*16, y1*16, 16, 16);
+			if(player.intersects(wall))
+				return true;
+		}
+				
+		if(World.tiles[x1 + (y2*World.WIDTH)] instanceof Wall) {
+			wall = new Rectangle(x1*16, y2*16, 16, 16);
+			if(player.intersects(wall))
+				return true;
+		}
+		
+		if(World.tiles[x2 + (y1*World.WIDTH)] instanceof Wall) {
+			wall = new Rectangle(x2*16, y1*16, 16, 16);
+			if(player.intersects(wall))
+				return true;
+		}
+				
+		if(World.tiles[x2 + (y2*World.WIDTH)] instanceof Wall) {
+			wall = new Rectangle(x2*16, y2*16, 16, 16);
+			if(player.intersects(wall))
+				return true;
+		}
+			
+		return false;
+			
+	}
+	
 	public void checkItems() {
 		for(int i = 0; i < Game.items.size(); i++) {
 			Entity atual = Game.items.get(i);
 			if(Entity.isColliding(this, atual)) {
 				if(atual instanceof MedKit && life < 100) {
-					Sound.pickup.play();
+					AdvancedSound.pickup.play();
 					life += 25;
 						
 					if(life > 100)
